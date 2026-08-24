@@ -6,10 +6,10 @@
     </header>
 
     <section class="card mb-5 grid gap-3 md:grid-cols-5">
-        <input class="filter-control" wire:model.live.debounce.300ms="search" placeholder="Buscar descrição ou loja">
-        <select class="filter-control" wire:model.live="type"><option value="">Todos os tipos</option><option value="income">Entradas</option><option value="expense">Saídas</option></select>
-        <select class="filter-control" wire:model.live="status"><option value="">Todos os status</option><option value="pending">Pendentes</option><option value="settled">Confirmados</option><option value="canceled">Cancelados</option></select>
-        <input class="filter-control" wire:model.live="dateFrom" type="date"><input class="filter-control" wire:model.live="dateTo" type="date">
+        <label class="sr-only" for="transaction-search">Buscar transações</label><input id="transaction-search" class="filter-control" wire:model.live.debounce.300ms="search" placeholder="Buscar descrição ou loja">
+        <label class="sr-only" for="transaction-type">Tipo</label><select id="transaction-type" class="filter-control" wire:model.live="type"><option value="">Todos os tipos</option><option value="income">Entradas</option><option value="expense">Saídas</option></select>
+        <label class="sr-only" for="transaction-status">Status</label><select id="transaction-status" class="filter-control" wire:model.live="status"><option value="">Todos os status</option><option value="pending">Pendentes</option><option value="settled">Confirmados</option><option value="canceled">Cancelados</option></select>
+        <label class="sr-only" for="transaction-date-from">Data inicial</label><input id="transaction-date-from" class="filter-control" wire:model.live="dateFrom" type="date"><label class="sr-only" for="transaction-date-to">Data final</label><input id="transaction-date-to" class="filter-control" wire:model.live="dateTo" type="date">
         <div class="flex flex-wrap gap-2 md:col-span-5"><button type="button" wire:click="setPeriod('today')" class="btn-secondary px-3 py-2 text-xs">Hoje</button><button type="button" wire:click="setPeriod('month')" class="btn-secondary px-3 py-2 text-xs">Este mês</button><button type="button" wire:click="setPeriod('next_month')" class="btn-secondary px-3 py-2 text-xs">Próximo mês</button><button type="button" wire:click="clearFilters" class="ml-auto px-3 py-2 text-xs font-semibold text-slate-500 hover:text-emerald-700">Limpar filtros</button></div>
     </section>
 

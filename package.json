@@ -6,7 +6,8 @@
         "build": "vite build",
         "dev": "vite",
         "test:e2e": "playwright test",
-        "test:e2e:ui": "playwright test --ui"
+        "test:e2e:ui": "playwright test --ui",
+        "quality": "npm run test:e2e && npm run build"
     },
     "devDependencies": {
         "@playwright/test": "^1.62.1",

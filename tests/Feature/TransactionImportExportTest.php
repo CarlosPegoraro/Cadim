@@ -34,6 +34,18 @@ test('mapped CSV rows create isolated one-time transactions', function () {
     ]);
 });
 
+test('reimporting the same CSV skips duplicate transactions', function () {
+    $user = User::factory()->create();
+    $file = UploadedFile::fake()->createWithContent('transactions.csv', "descricao,valor,data,tipo\nMercado,125.50,2026-08-10,expense\n");
+    $service = app(TransactionImportService::class);
+    $preview = $service->preview($file);
+
+    expect($service->import($user, $preview['headers'], $preview['rows'], $preview['mapping']))->toBe(1)
+        ->and($service->import($user, $preview['headers'], $preview['rows'], $preview['mapping']))->toBe(0)
+        ->and($service->duplicatesSkipped)->toBe(1)
+        ->and($user->transactions()->count())->toBe(1);
+});
+
 test('transaction export respects the authenticated user and filters', function () {
     $user = User::factory()->create();
     $otherUser = User::factory()->create();

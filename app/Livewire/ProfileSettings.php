@@ -9,12 +9,19 @@ use Livewire\Component;
 class ProfileSettings extends Component
 {
     public string $name = '';
+
     public string $email = '';
+
     public string $avatarIcon = '';
+
     public string $currentPassword = '';
+
     public string $password = '';
+
     public string $passwordConfirmation = '';
+
     public string $profileMessage = '';
+
     public mixed $admin = null;
 
     protected function messages(): array
@@ -59,6 +66,7 @@ class ProfileSettings extends Component
 
         if (! Hash::check($this->currentPassword, auth()->user()->password)) {
             $this->addError('currentPassword', 'A senha atual está incorreta.');
+
             return;
         }
 

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\Dashboard;
 use App\Models\User;
+use App\Services\AccountBalanceService;
 use App\Services\FinancialNotificationService;
 use Carbon\Carbon;
 use Livewire\Livewire;
@@ -56,6 +57,44 @@ test('the dashboard chart only shows transactions from the selected month', func
         ->set('referenceMonth', '2026-01')
         ->assertSee('R$ 1.000,00')
         ->assertDontSee('R$ 250,00');
+});
+
+test('dashboard balances follow the selected period and separate checking from net worth', function () {
+    $user = User::factory()->create();
+    $checking = $user->accounts()->create(['name' => 'Conta corrente', 'type' => 'checking', 'initial_balance' => 1000]);
+    $user->accounts()->create(['name' => 'Investimentos', 'type' => 'investments', 'initial_balance' => 500]);
+
+    $checking->transactions()->createMany([
+        [
+            'user_id' => $user->id, 'type' => 'income', 'amount' => 100,
+            'description' => 'Entrada no período', 'due_date' => '2026-01-10',
+            'competence_month' => '2026-01-01', 'status' => 'settled',
+        ],
+        [
+            'user_id' => $user->id, 'type' => 'expense', 'amount' => 50,
+            'description' => 'Despesa no período', 'due_date' => '2026-01-20',
+            'competence_month' => '2026-01-01', 'status' => 'pending',
+        ],
+        [
+            'user_id' => $user->id, 'type' => 'income', 'amount' => 900,
+            'description' => 'Entrada posterior', 'due_date' => '2026-02-10',
+            'competence_month' => '2026-02-01', 'status' => 'settled',
+        ],
+    ]);
+
+    $summary = app(AccountBalanceService::class)->summarizeForUser($user, Carbon::parse('2026-01-31')->endOfDay(), ['checking']);
+
+    expect($summary['consolidated']['realized_balance'])->toBe(1100.0)
+        ->and($summary['consolidated']['projected_balance'])->toBe(1050.0)
+        ->and($summary['net_worth']['realized_balance'])->toBe(1600.0);
+
+    Livewire::actingAs($user)
+        ->test(Dashboard::class)
+        ->set('period', 'month')
+        ->set('referenceMonth', '2026-01')
+        ->assertSee('R$ 1.100,00')
+        ->assertSee('R$ 1.050,00')
+        ->assertDontSee('R$ 2.500,00');
 });
 
 test('the monthly financial view distributes the chart across every day of the month', function () {

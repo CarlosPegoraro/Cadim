@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\FinancialAccount;
 use App\Models\TransactionOccurrence;
 use App\Models\TransactionSeries;
 use App\Models\User;
@@ -41,6 +42,36 @@ class TransactionService
 
             return $series;
         });
+    }
+
+    public function createOpeningBalance(User $user, FinancialAccount $account, float $balance): TransactionOccurrence
+    {
+        $amount = abs($balance);
+        $date = today();
+
+        $series = $user->transactionSeries()->create([
+            'type' => $balance < 0 ? 'expense' : 'income',
+            'amount' => $amount,
+            'description' => 'Saldo inicial da conta',
+            'financial_account_id' => $account->id,
+            'recurrence' => 'one_time',
+            'starts_on' => $date,
+            'purchase_date' => $date,
+            'is_active' => true,
+        ]);
+
+        return $series->occurrences()->create([
+            'user_id' => $user->id,
+            'financial_account_id' => $account->id,
+            'type' => $balance < 0 ? 'expense' : 'income',
+            'amount' => $amount,
+            'description' => 'Saldo inicial da conta',
+            'due_date' => $date,
+            'purchase_date' => $date,
+            'competence_month' => $date->copy()->startOfMonth(),
+            'status' => 'settled',
+            'settled_at' => $date,
+        ]);
     }
 
     /** @param array<string, mixed> $data */

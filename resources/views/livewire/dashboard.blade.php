@@ -25,9 +25,8 @@
             <div class="summary-grid">
                 <article class="metric-card"><div class="metric-icon income">↙</div><p>Receitas do período</p><strong>R$ {{ number_format($income, 2, ',', '.') }}</strong><small><b class="positive">●</b> R$ {{ number_format($settledIncome, 2, ',', '.') }} recebidos @if($incomeChange !== null) · {{ $incomeChange >= 0 ? '+' : '' }}{{ number_format($incomeChange, 1, ',', '.') }}% vs anterior @endif</small></article>
                 <article class="metric-card"><div class="metric-icon expense">↗</div><p>Despesas do período</p><strong>R$ {{ number_format($expense, 2, ',', '.') }}</strong><small><b class="negative">●</b> R$ {{ number_format($settledExpense, 2, ',', '.') }} pagos @if($expenseChange !== null) · {{ $expenseChange >= 0 ? '+' : '' }}{{ number_format($expenseChange, 1, ',', '.') }}% vs anterior @endif</small></article>
-                <article class="metric-card"><div class="metric-icon current-balance">◉</div><p>Saldo atual</p><strong>R$ {{ number_format($currentBalance, 2, ',', '.') }}</strong><small><b class="positive">●</b> até hoje, sem lançamentos futuros</small></article>
-                <article class="metric-card"><div class="metric-icon savings">▱</div><p>Saldo previsto</p><strong>R$ {{ number_format($projectedBalance, 2, ',', '.') }}</strong><small><b class="positive">●</b> contas operacionais</small></article>
-                <article class="metric-card"><div class="metric-icon current-balance">◈</div><p>Patrimônio total</p><strong>R$ {{ number_format($netWorth, 2, ',', '.') }}</strong><small><b class="positive">●</b> incluindo investimentos</small></article>
+                <article class="metric-card"><div class="metric-icon current-balance">◉</div><p>Saldo atual</p><strong>R$ {{ number_format($currentBalance, 2, ',', '.') }}</strong><small><b class="positive">●</b> até o fim do período · contas correntes</small></article>
+                <article class="metric-card"><div class="metric-icon savings">▱</div><p>Saldo previsto</p><strong>R$ {{ number_format($projectedBalance, 2, ',', '.') }}</strong><small><b class="positive">●</b> até o fim do período · contas correntes</small></article>
             </div>
 
             <article class="panel chart-panel">

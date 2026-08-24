@@ -12,11 +12,14 @@ Construído com Laravel, Livewire, Tailwind CSS, Vite e PostgreSQL.
 - Projeção de ocorrências futuras para séries recorrentes.
 - Contas financeiras com saldo realizado, projetado e consolidado.
 - Cartões de crédito com limite comprometido, limite disponível e faturas atual e seguinte.
+- Pagamento e desfazimento de faturas, com data e valor registrados.
 - Categorias separadas para receitas e despesas.
 - Transferências entre contas sem distorcer os totais consolidados.
 - Orçamentos mensais, recorrentes e alertas de acompanhamento.
 - Metas financeiras com progresso e prazo opcional.
 - Importação de transações por CSV e exportação dos lançamentos.
+- Deduplicação automática ao reimportar um CSV.
+- Notificações financeiras persistentes, com controle de leitura.
 - Autenticação, onboarding, termos de uso e central de suporte.
 
 ## Requisitos
@@ -93,6 +96,7 @@ composer analyse          # PHPStan/Larastan
 composer pint:check       # verifica formatação PHP
 composer pint             # aplica formatação PHP
 npm run build             # build dos assets
+php artisan test --compact # executa a suíte local sem Docker
 ```
 
 Para gerar manualmente ocorrências futuras de séries ativas:
@@ -118,6 +122,10 @@ Para abrir a interface do Playwright localmente:
 ```bash
 npm run test:e2e:ui
 ```
+
+O pipeline em `.github/workflows/quality.yml` valida testes PHP, PHPStan, Pint e o build dos assets em cada pull request.
+
+Em produção, configure backups automatizados do PostgreSQL, monitore os logs da aplicação e mantenha `APP_DEBUG=false`. As credenciais de demonstração documentadas neste arquivo são apenas para desenvolvimento.
 
 ## Produção
 

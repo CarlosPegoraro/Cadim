@@ -268,9 +268,10 @@ class TransactionsPage extends Component
         }
 
         $created = $service->import(auth()->user(), $this->importHeaders, $this->importRows, $this->importMapping);
+        $duplicates = $service->duplicatesSkipped;
         $this->resetImport();
         $this->showImportForm = false;
-        $this->successMessage = "{$created} lançamento(s) importado(s) com sucesso.";
+        $this->successMessage = "{$created} lançamento(s) importado(s) com sucesso.".($duplicates > 0 ? " {$duplicates} duplicado(s) foram ignorado(s)." : '');
     }
 
     public function resetImport(): void

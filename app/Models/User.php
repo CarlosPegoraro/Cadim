@@ -79,6 +79,11 @@ class User extends Authenticatable
         return $this->hasMany(AuditLog::class, 'actor_id');
     }
 
+    public function financialNotifications()
+    {
+        return $this->hasMany(FinancialNotification::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

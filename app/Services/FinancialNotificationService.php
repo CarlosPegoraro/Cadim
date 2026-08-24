@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\FinancialNotification;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class FinancialNotificationService
 {
@@ -50,6 +52,47 @@ class FinancialNotificationService
             }
         }
 
-        return ['count' => count($items), 'items' => $items];
+        $now = now();
+        $fingerprints = collect($items)->map(function (array $item): string {
+            return hash('sha256', $item['title'].'|'.$item['text'].'|'.$item['url']);
+        });
+
+        DB::transaction(function () use ($user, $items, $fingerprints): void {
+            foreach ($items as $index => $item) {
+                FinancialNotification::query()->updateOrCreate(
+                    ['user_id' => $user->id, 'fingerprint' => $fingerprints[$index]],
+                    ['title' => $item['title'], 'text' => $item['text'], 'url' => $item['url']]
+                );
+            }
+
+            $query = $user->financialNotifications();
+            if ($fingerprints->isNotEmpty()) {
+                $query->whereNotIn('fingerprint', $fingerprints->all());
+            }
+            $query->delete();
+        });
+
+        $notifications = $user->financialNotifications()->latest()->get();
+
+        return [
+            'count' => $notifications->whereNull('read_at')->count(),
+            'items' => $notifications->map(fn (FinancialNotification $notification): array => [
+                'id' => $notification->id,
+                'title' => $notification->title,
+                'text' => $notification->text,
+                'url' => $notification->url,
+                'read' => $notification->read_at !== null,
+            ])->all(),
+        ];
+    }
+
+    public function markRead(User $user, int $id): void
+    {
+        $user->financialNotifications()->whereKey($id)->update(['read_at' => now()]);
+    }
+
+    public function markAllRead(User $user): void
+    {
+        $user->financialNotifications()->whereNull('read_at')->update(['read_at' => now()]);
     }
 }

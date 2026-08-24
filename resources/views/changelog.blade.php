@@ -31,6 +31,29 @@
     </header>
 
         <div class="changelog-list">
+            <x-changelog-entry title="Saldos mais precisos e experiência mobile aprimorada" date="2026-08-24" version="1.3.1">
+                <p>Fizemos ajustes no cálculo dos saldos e refinamos a experiência de uso em telas menores.</p>
+                <ul>
+                    <li>O saldo inicial de novas contas passa a ser registrado como lançamento, evitando duplicidade nos totais.</li>
+                    <li>O dashboard calcula os saldos operacionais de acordo com o período selecionado.</li>
+                    <li>O patrimônio total passou a ficar visível no cabeçalho do dashboard.</li>
+                    <li>Melhorias de responsividade para celular, filtros, tabelas, cartões e modais.</li>
+                    <li>Mais acessibilidade com foco visível e respeito à preferência por movimento reduzido.</li>
+                </ul>
+            </x-changelog-entry>
+
+            <x-changelog-entry title="Faturas, notificações e importação mais confiáveis" date="2026-08-21" version="1.3.0">
+                <p>O Cadim ganhou controles financeiros mais completos, melhorias na importação e ajustes de segurança, cálculo e qualidade da experiência.</p>
+                <ul>
+                    <li>Marcação e desfazimento do pagamento de faturas de cartões, com registro de data e valor.</li>
+                    <li>Notificações financeiras persistentes, com deduplicação e opção de marcar uma ou todas como lidas.</li>
+                    <li>Importação de CSV com identificação automática de lançamentos duplicados e aviso sobre itens ignorados.</li>
+                    <li>Parcelamentos agora distribuem o valor entre as ocorrências mensais, com cálculo de saldos por período e contas correntes.</li>
+                    <li>Validações reforçadas impedem que usuários se promovam indevidamente a administradores.</li>
+                    <li>Melhorias de acessibilidade nos filtros, refinamentos visuais e pipeline automatizado de qualidade.</li>
+                </ul>
+            </x-changelog-entry>
+
             <x-changelog-entry title="Novos Termos de Uso e Política de Privacidade" date="2026-08-14" version="1.2.2">
                 <p>Publicamos uma nova versão dos documentos legais do Cadim, com informações mais completas sobre o funcionamento da plataforma e o tratamento de dados pessoais.</p>
                 <ul>

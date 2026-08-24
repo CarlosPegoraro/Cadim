@@ -30,6 +30,8 @@ class TransactionImportService
         'notes' => 'Observações',
     ];
 
+    public int $duplicatesSkipped = 0;
+
     /** @return array{headers: list<string>, rows: list<list<string>>, mapping: array<string, string>} */
     public function preview(UploadedFile $file): array
     {
@@ -65,11 +67,17 @@ class TransactionImportService
     {
         $errors = [];
         $created = 0;
+        $this->duplicatesSkipped = 0;
 
         DB::transaction(function () use ($user, $headers, $rows, $mapping, &$errors, &$created): void {
             foreach ($rows as $index => $row) {
                 try {
                     $data = $this->mapRow($user, $headers, $row, $mapping);
+                    if ($this->isDuplicate($user, $data)) {
+                        $this->duplicatesSkipped++;
+
+                        continue;
+                    }
                     $series = app(TransactionService::class)->create($user, $data);
                     $occurrence = $series->occurrences()->firstOrFail();
                     $this->applyStatus($occurrence, $data['status'] ?? 'pending');
@@ -87,6 +95,19 @@ class TransactionImportService
         });
 
         return $created;
+    }
+
+    /** @param array<string, mixed> $data */
+    private function isDuplicate(User $user, array $data): bool
+    {
+        return $user->transactions()
+            ->where('type', $data['type'])
+            ->where('amount', $data['amount'])
+            ->whereDate('due_date', $data['due_date'])
+            ->where('description', $data['description'])
+            ->when($data['merchant'] ?? null, fn (Builder $query, string $merchant) => $query->where('merchant', $merchant), fn (Builder $query) => $query->whereNull('merchant'))
+            ->where('status', '!=', 'canceled')
+            ->exists();
     }
 
     /** @param list<string> $headers @return array<string, string> */
@@ -171,7 +192,7 @@ class TransactionImportService
             throw ValidationException::withMessages(['importFile' => "{$label} não encontrada: {$name}."]);
         }
 
-        return (int) $model->id;
+        return (int) $model->getKey();
     }
 
     /** @param list<string> $row */

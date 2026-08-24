@@ -5,7 +5,10 @@ namespace App\Livewire;
 use App\Services\AccountBalanceService;
 use App\Services\CardNumberDetector;
 use App\Services\CreditCardBalanceService;
+use App\Services\TransactionService;
 use App\Services\TransferService;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -43,14 +46,19 @@ class FinancialAccountsPage extends Component
             : 'accounts';
     }
 
-    public function saveAccount()
+    public function saveAccount(TransactionService $transactions)
     {
         $d = $this->validate(['account.name' => 'required|max:100', 'account.type' => 'required|in:checking,investments,cash', 'account.initial_balance' => 'nullable|numeric']);
         if ($this->editingAccountId) {
             auth()->user()->accounts()->whereKey($this->editingAccountId)->firstOrFail()->update($d['account']);
             $message = 'Conta atualizada com sucesso.';
         } else {
-            auth()->user()->accounts()->create($d['account']);
+            $initialBalance = (float) ($d['account']['initial_balance'] ?? 0);
+            DB::transaction(function () use ($d, $initialBalance, $transactions): void {
+                // O saldo de abertura passa a existir como lançamento, evitando que seja somado duas vezes.
+                $account = auth()->user()->accounts()->create([...$d['account'], 'initial_balance' => 0]);
+                $transactions->createOpeningBalance(auth()->user(), $account, $initialBalance);
+            });
             $message = 'Conta adicionada com sucesso.';
         }
         $this->account = ['name' => '', 'type' => 'checking', 'initial_balance' => ''];
@@ -232,6 +240,21 @@ class FinancialAccountsPage extends Component
     {
         $service->cancel(auth()->user()->transfers()->findOrFail($id));
         $this->successMessage = 'Transferência cancelada.';
+    }
+
+    public function toggleInvoicePayment(int $cardId, string $invoiceMonth, CreditCardBalanceService $service): void
+    {
+        $card = auth()->user()->creditCards()->whereKey($cardId)->firstOrFail();
+        $month = Carbon::parse($invoiceMonth)->startOfMonth();
+        $summary = $service->summarize($card, $month);
+
+        if ($summary['current_invoice_paid']) {
+            $service->unpaidInvoice($card, $month);
+            $this->successMessage = 'Pagamento da fatura desfeito.';
+        } else {
+            $service->payInvoice($card, $month, (float) $summary['current_invoice'], now());
+            $this->successMessage = 'Fatura marcada como paga.';
+        }
     }
 
     public function render(AccountBalanceService $balances, CreditCardBalanceService $cardBalances)

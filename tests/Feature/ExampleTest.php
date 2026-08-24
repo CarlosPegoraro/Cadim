@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\Auth\Register;
 use App\Livewire\FinancialAccountsPage;
+use App\Livewire\ProfileSettings;
 use App\Models\User;
 use Livewire\Livewire;
 
@@ -76,7 +77,7 @@ test('profile update rejects an admin flag', function () {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
-        ->test(\App\Livewire\ProfileSettings::class)
+        ->test(ProfileSettings::class)
         ->set('admin', true)
         ->call('saveProfile')
         ->assertHasErrors(['admin']);

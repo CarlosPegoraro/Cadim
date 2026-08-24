@@ -27,4 +27,9 @@ class CreditCard extends Model
     {
         return $this->hasMany(TransactionOccurrence::class, 'credit_card_id');
     }
+
+    public function invoicePayments()
+    {
+        return $this->hasMany(CreditCardInvoicePayment::class);
+    }
 }

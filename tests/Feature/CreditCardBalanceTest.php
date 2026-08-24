@@ -69,3 +69,18 @@ test('recurring card transactions keep purchase date separate from invoice due d
         ->and($occurrences->pluck('purchase_date')->map->toDateString()->all())->toBe(['2026-08-26', '2026-09-26'])
         ->and($occurrences->first()->competence_month->toDateString())->toBe('2026-08-01');
 });
+
+test('a card invoice can be marked as paid and unpaid', function () {
+    $user = User::factory()->create();
+    $card = $user->creditCards()->create([
+        'name' => 'Cartão', 'closing_day' => 25, 'due_day' => 5, 'limit' => 1000,
+    ]);
+    $service = app(CreditCardBalanceService::class);
+    $month = Carbon::parse('2026-08-01');
+
+    $service->payInvoice($card, $month, 250, Carbon::parse('2026-08-05'));
+    expect($service->summarize($card, $month)['current_invoice_paid'])->toBeTrue();
+
+    $service->unpaidInvoice($card, $month);
+    expect($service->summarize($card, $month)['current_invoice_paid'])->toBeFalse();
+});

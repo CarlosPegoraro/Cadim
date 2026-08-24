@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FinancialNotificationController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\TransactionExportController;
 use App\Livewire\AdminDashboard;
@@ -44,6 +45,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/changelog', ChangelogPage::class)->name('changelog');
     Route::post('/onboarding/event', [OnboardingController::class, 'event'])->name('onboarding.event');
     Route::post('/suporte/feedback', [OnboardingController::class, 'feedback'])->name('support.feedback');
+    Route::post('/notifications/read-all', [FinancialNotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::post('/notifications/{id}/read', [FinancialNotificationController::class, 'read'])->name('notifications.read');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {

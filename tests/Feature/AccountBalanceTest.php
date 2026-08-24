@@ -69,6 +69,29 @@ test('the accounts page displays consolidated balances for active accounts', fun
         ->assertSee('Saldo atual consolidado');
 });
 
+test('creating an account records its opening balance in the transaction history', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(FinancialAccountsPage::class)
+        ->set('account.name', 'Conta nova')
+        ->set('account.type', 'checking')
+        ->set('account.initial_balance', '1250.50')
+        ->call('saveAccount')
+        ->assertHasNoErrors();
+
+    $account = $user->accounts()->where('name', 'Conta nova')->firstOrFail();
+    $transaction = $user->transactions()->where('description', 'Saldo inicial da conta')->firstOrFail();
+
+    expect($account->initial_balance)->toBe('0.00')
+        ->and($transaction->financial_account_id)->toBe($account->id)
+        ->and($transaction->type)->toBe('income')
+        ->and($transaction->amount)->toBe('1250.50')
+        ->and($transaction->status)->toBe('settled')
+        ->and($transaction->due_date->toDateString())->toBe(today()->toDateString())
+        ->and(app(AccountBalanceService::class)->summarize($account)['realized_balance'])->toBe(1250.50);
+});
+
 test('investment accounts are excluded from available balance but included in net worth', function () {
     $user = User::factory()->create();
     $checking = $user->accounts()->create(['name' => 'Conta corrente', 'type' => 'checking', 'initial_balance' => 1000]);

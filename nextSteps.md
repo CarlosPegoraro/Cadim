@@ -1,4 +1,10 @@
-## 1. Prioridade imediata: completar o ciclo dos lançamentos
+## Status do roadmap
+
+Os itens abaixo foram implementados desde a versão inicial deste documento: ciclo completo dos lançamentos, materialização agendada de recorrências, saldos reais, cartões com limite e faturas, dashboard por período, orçamentos, metas, transferências, segurança de referências, importação/exportação e notificações calculadas.
+
+As próximas prioridades são controle detalhado de faturas, importação com conciliação bancária, UX mobile/acessibilidade, notificações persistentes e endurecimento operacional para produção.
+
+## 1. Histórico: completar o ciclo dos lançamentos
 
 Hoje é possível criar, confirmar e cancelar, mas faltam operações essenciais:
 

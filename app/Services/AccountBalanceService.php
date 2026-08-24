@@ -55,7 +55,7 @@ class AccountBalanceService
     /**
      * @return array{accounts: Collection<int, array<string, float>>, consolidated: array<string, float>, net_worth: array<string, float>}
      */
-    public function summarizeForUser(User $user): array
+    public function summarizeForUser(User $user, ?Carbon $asOf = null, ?array $consolidatedTypes = null): array
     {
         $accounts = $user->accounts()
             ->where('is_archived', false)
@@ -63,11 +63,13 @@ class AccountBalanceService
             ->get();
 
         $summaries = $accounts->mapWithKeys(
-            fn (FinancialAccount $account): array => [$account->id => $this->summarize($account)]
+            fn (FinancialAccount $account): array => [$account->id => $this->summarize($account, $asOf)]
         );
 
         $operationalSummaries = $accounts
-            ->reject(fn (FinancialAccount $account): bool => $account->isInvestment())
+            ->filter(fn (FinancialAccount $account): bool => $consolidatedTypes === null
+                ? ! $account->isInvestment()
+                : in_array($account->type, $consolidatedTypes, true))
             ->mapWithKeys(fn (FinancialAccount $account): array => [$account->id => $summaries[$account->id]]);
         $sum = static fn (Collection $items, string $key): float => (float) $items->sum($key);
         $keys = ['initial_balance', 'settled_income', 'settled_expense', 'pending_income', 'pending_expense', 'settled_transfer_in', 'settled_transfer_out', 'pending_transfer_in', 'pending_transfer_out', 'realized_balance', 'projected_balance'];

@@ -92,7 +92,7 @@ class Dashboard extends Component
         $cardUtilization = $cardConsolidated['limit'] > 0
             ? min(100, max(0, ($cardConsolidated['used_limit'] / $cardConsolidated['limit']) * 100))
             : 0;
-        $accountSummary = $accountBalances->summarizeForUser($user);
+        $accountSummary = $accountBalances->summarizeForUser($user, $end, ['checking']);
         $currentBalance = $accountSummary['consolidated']['realized_balance'];
         $projectedBalance = $accountSummary['consolidated']['projected_balance'];
         $netWorth = $accountSummary['net_worth']['realized_balance'];
@@ -124,7 +124,7 @@ class Dashboard extends Component
             'cardConsolidated' => $cardConsolidated,
             'cardUtilization' => $cardUtilization,
             'onboardingSteps' => $onboardingSteps,
-        ])->layout('layouts.app');
+        ])->layout('layouts.app', ['dashboardNetWorth' => $netWorth]);
     }
 
     private function cardStyle(?string $brand): string

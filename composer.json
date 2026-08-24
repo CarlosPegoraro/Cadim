@@ -44,7 +44,13 @@
         "dev": "docker compose -f docker/compose.yaml up -d",
         "dev:build": "docker compose -f docker/compose.yaml up --build -d",
         "test": "docker compose -f docker/compose.yaml exec app php artisan test",
+        "test:coverage": "docker compose -f docker/compose.yaml exec app php artisan test --coverage",
         "test:e2e": "docker compose -f docker/compose.yaml --profile e2e run --rm playwright",
+        "quality": [
+            "@test",
+            "@pint:check",
+            "@analyse"
+        ],
         "analyse": "docker compose -f docker/compose.yaml exec app php vendor/bin/phpstan analyse --memory-limit=1G",
         "pint": "docker compose -f docker/compose.yaml exec app php vendor/bin/pint",
         "pint:check": "docker compose -f docker/compose.yaml exec app php vendor/bin/pint --test",
