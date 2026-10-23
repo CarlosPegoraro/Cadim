@@ -29,7 +29,7 @@ Para o fluxo recomendado, instale apenas:
 - Docker com Docker Compose;
 - Git.
 
-Para executar sem Docker, também são necessários PHP 8.3+, Composer, Node.js/npm e PostgreSQL.
+Para executar sem Docker, também são necessários PHP 8.5.12+, Composer, Node.js/npm e PostgreSQL.
 
 ## Executar com Docker
 

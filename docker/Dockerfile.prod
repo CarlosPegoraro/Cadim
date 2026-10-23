@@ -12,7 +12,7 @@ WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
-FROM php:8.4-fpm-alpine AS app
+FROM php:8.5.12-fpm-alpine AS app
 WORKDIR /var/www/html
 RUN apk add --no-cache $PHPIZE_DEPS postgresql-dev libzip-dev libxml2-dev oniguruma-dev \
     && docker-php-ext-install pdo_pgsql zip mbstring xml opcache \
