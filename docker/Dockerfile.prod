@@ -15,7 +15,7 @@ RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoload
 FROM php:8.5.12-fpm-alpine AS app
 WORKDIR /var/www/html
 RUN apk add --no-cache $PHPIZE_DEPS postgresql-dev libzip-dev libxml2-dev oniguruma-dev \
-    && docker-php-ext-install pdo_pgsql zip mbstring xml opcache \
+    && docker-php-ext-install pdo_pgsql zip mbstring xml \
     && apk del $PHPIZE_DEPS
 COPY --from=vendor /app/vendor vendor
 COPY . .
