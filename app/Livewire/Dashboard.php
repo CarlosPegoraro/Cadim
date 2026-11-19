@@ -2,9 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Services\AccountBalanceService;
 use App\Services\CreditCardBalanceService;
-use App\Services\OnboardingProgressService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\Component;
@@ -36,12 +34,11 @@ class Dashboard extends Component
         }
     }
 
-    public function render(CreditCardBalanceService $cardBalances, AccountBalanceService $accountBalances, OnboardingProgressService $onboarding)
+    public function render(CreditCardBalanceService $cardBalances)
     {
         [$start, $end] = $this->periodRange();
         [$comparisonStart, $comparisonEnd] = $this->comparisonRange($start, $end);
         $user = auth()->user();
-        $onboardingSteps = $onboarding->summary($user);
         $cards = $user->creditCards()->where('is_archived', false)->orderBy('name')->get();
         $selectedCard = $this->selectedCardId !== ''
             ? $cards->firstWhere('id', (int) $this->selectedCardId)
@@ -60,10 +57,9 @@ class Dashboard extends Component
         $comparisonTransactions = (clone $transactions)->whereBetween('due_date', [$comparisonStart, $comparisonEnd]);
         $income = (float) (clone $periodTransactions)->where('type', 'income')->sum('amount');
         $expense = (float) (clone $periodTransactions)->where('type', 'expense')->sum('amount');
-        $settledIncome = (float) (clone $periodTransactions)->where('type', 'income')->where('status', 'settled')->sum('amount');
-        $settledExpense = (float) (clone $periodTransactions)->where('type', 'expense')->where('status', 'settled')->sum('amount');
         $comparisonIncome = (float) (clone $comparisonTransactions)->where('type', 'income')->sum('amount');
         $comparisonExpense = (float) (clone $comparisonTransactions)->where('type', 'expense')->sum('amount');
+        $finalBalance = $income - $expense;
         $months = $this->chartMonths($start, $end, $transactions);
         $expensesByCategory = $periodTransactions
             ->where('type', 'expense')
@@ -72,14 +68,6 @@ class Dashboard extends Component
             ->sortDesc()
             ->take(5);
         $largestExpenses = $periodTransactions->where('type', 'expense')->sortByDesc('amount')->take(5);
-        $upcomingQuery = $user->transactions()->with(['category', 'creditCard'])->where('status', 'pending')->whereBetween('due_date', [today(), today()->addDays(7)])->where(function ($query) {
-            $query->whereNull('financial_account_id')
-                ->orWhereHas('account', fn ($accountQuery) => $accountQuery->whereNotIn('type', ['investments', 'savings']));
-        });
-        if ($selectedCard) {
-            $upcomingQuery->where('credit_card_id', $selectedCard->id);
-        }
-        $upcoming = $upcomingQuery->orderBy('due_date')->limit(5)->get();
         $recentTransactions = $periodTransactions->sortByDesc('due_date')->take(5);
         $primaryCard = $selectedCard ?: $cards->sortByDesc('limit')->first();
         $cardSummary = $cardBalances->summarizeForUser($user);
@@ -92,10 +80,6 @@ class Dashboard extends Component
         $cardUtilization = $cardConsolidated['limit'] > 0
             ? min(100, max(0, ($cardConsolidated['used_limit'] / $cardConsolidated['limit']) * 100))
             : 0;
-        $accountSummary = $accountBalances->summarizeForUser($user, $end, ['checking']);
-        $currentBalance = $accountSummary['consolidated']['realized_balance'];
-        $projectedBalance = $accountSummary['consolidated']['projected_balance'];
-        $netWorth = $accountSummary['net_worth']['realized_balance'];
 
         return view('livewire.dashboard', [
             'start' => $start,
@@ -103,17 +87,12 @@ class Dashboard extends Component
             'periodLabel' => $this->periodLabel($start, $end),
             'income' => $income,
             'expense' => $expense,
-            'currentBalance' => $currentBalance,
-            'projectedBalance' => $projectedBalance,
-            'netWorth' => $netWorth,
-            'settledIncome' => $settledIncome,
-            'settledExpense' => $settledExpense,
+            'finalBalance' => $finalBalance,
             'incomeChange' => $this->percentageChange($income, $comparisonIncome),
             'expenseChange' => $this->percentageChange($expense, $comparisonExpense),
             'months' => $months,
             'expensesByCategory' => $expensesByCategory,
             'largestExpenses' => $largestExpenses,
-            'upcoming' => $upcoming,
             'recentTransactions' => $recentTransactions,
             'primaryCard' => $primaryCard,
             'primaryCardSummary' => $primaryCardSummary,
@@ -123,8 +102,7 @@ class Dashboard extends Component
             'cardStyle' => $this->cardStyle($selectedCard?->brand),
             'cardConsolidated' => $cardConsolidated,
             'cardUtilization' => $cardUtilization,
-            'onboardingSteps' => $onboardingSteps,
-        ])->layout('layouts.app', ['dashboardNetWorth' => $netWorth]);
+        ])->layout('layouts.app');
     }
 
     private function cardStyle(?string $brand): string

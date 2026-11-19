@@ -21,7 +21,7 @@ class TransferService
             abort(403);
         }
 
-        $status = $data['status'] ?? 'pending';
+        $status = $data['status'] ?? 'settled';
 
         return $user->transfers()->create([
             'from_account_id' => $from,

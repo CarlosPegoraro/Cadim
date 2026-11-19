@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class FinancialAccount extends Model
 {
-    protected $fillable = ['name', 'type', 'initial_balance', 'color', 'is_archived'];
+    protected $fillable = ['name', 'type', 'initial_balance', 'color', 'is_archived', 'institution', 'due_day', 'closing_day'];
 
     protected function casts(): array
     {

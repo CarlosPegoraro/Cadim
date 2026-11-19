@@ -13,20 +13,12 @@
         </div>
     </section>
 
-    @if(collect($onboardingSteps)->contains('completed', false))
-        <section class="mb-5 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
-            <div class="flex flex-wrap items-center justify-between gap-3"><div><p class="eyebrow">PRÓXIMO PASSO</p><h2 class="text-base font-semibold text-slate-800">Ative seu controle financeiro</h2><p class="text-sm text-slate-500">Complete o checklist para aproveitar melhor o Cadim.</p></div><strong class="text-sm text-emerald-700">{{ collect($onboardingSteps)->where('completed', true)->count() }}/{{ count($onboardingSteps) }}</strong></div>
-            <div class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">@foreach($onboardingSteps as $step)<div class="rounded-lg bg-white px-3 py-2 text-xs {{ $step['completed'] ? 'text-emerald-700' : 'text-slate-500' }}">{{ $step['completed'] ? '✓' : '○' }} {{ $step['label'] }}</div>@endforeach</div>
-        </section>
-    @endif
-
     <div class="dashboard-layout">
         <section class="dashboard-main">
             <div class="summary-grid">
-                <article class="metric-card"><div class="metric-icon income">↙</div><p>Receitas do período</p><strong>R$ {{ number_format($income, 2, ',', '.') }}</strong><small><b class="positive">●</b> R$ {{ number_format($settledIncome, 2, ',', '.') }} recebidos @if($incomeChange !== null) · {{ $incomeChange >= 0 ? '+' : '' }}{{ number_format($incomeChange, 1, ',', '.') }}% vs anterior @endif</small></article>
-                <article class="metric-card"><div class="metric-icon expense">↗</div><p>Despesas do período</p><strong>R$ {{ number_format($expense, 2, ',', '.') }}</strong><small><b class="negative">●</b> R$ {{ number_format($settledExpense, 2, ',', '.') }} pagos @if($expenseChange !== null) · {{ $expenseChange >= 0 ? '+' : '' }}{{ number_format($expenseChange, 1, ',', '.') }}% vs anterior @endif</small></article>
-                <article class="metric-card"><div class="metric-icon current-balance">◉</div><p>Saldo atual</p><strong>R$ {{ number_format($currentBalance, 2, ',', '.') }}</strong><small><b class="positive">●</b> até o fim do período · contas correntes</small></article>
-                <article class="metric-card"><div class="metric-icon savings">▱</div><p>Saldo previsto</p><strong>R$ {{ number_format($projectedBalance, 2, ',', '.') }}</strong><small><b class="positive">●</b> até o fim do período · contas correntes</small></article>
+                <article class="metric-card"><div class="metric-icon income">↙</div><p>Receitas do período</p><strong>R$ {{ number_format($income, 2, ',', '.') }}</strong><small><b class="positive">●</b> total de entradas @if($incomeChange !== null) · {{ $incomeChange >= 0 ? '+' : '' }}{{ number_format($incomeChange, 1, ',', '.') }}% vs anterior @endif</small></article>
+                <article class="metric-card"><div class="metric-icon expense">↗</div><p>Despesas do período</p><strong>R$ {{ number_format($expense, 2, ',', '.') }}</strong><small><b class="negative">●</b> total de saídas @if($expenseChange !== null) · {{ $expenseChange >= 0 ? '+' : '' }}{{ number_format($expenseChange, 1, ',', '.') }}% vs anterior @endif</small></article>
+                <article class="metric-card {{ $finalBalance < 0 ? 'border-rose-200 bg-rose-50/40' : 'border-emerald-200' }}"><div class="metric-icon current-balance">◉</div><p>Saldo final do período</p><strong class="{{ $finalBalance < 0 ? 'text-rose-600' : 'text-emerald-700' }}">R$ {{ number_format($finalBalance, 2, ',', '.') }}</strong><small><b class="{{ $finalBalance < 0 ? 'negative' : 'positive' }}">●</b> receitas menos despesas</small></article>
             </div>
 
             <article class="panel chart-panel">
@@ -51,7 +43,6 @@
         <aside class="dashboard-side">
             <article class="card-widget"><div class="side-heading"><h2>Meus cartões</h2><a wire:navigate href="{{ route('accounts') }}">+ Adicionar</a></div><label class="field mb-4 text-xs">Visualizar<select wire:model.live="selectedCardId"><option value="">Todos os cartões</option>@foreach($cards as $card)<option value="{{ $card->id }}">{{ $card->name }}</option>@endforeach</select></label>@if($primaryCard)<div class="credit-card" style="{{ $selectedCard ? $cardStyle : 'background: linear-gradient(135deg, #2f855a, #14532d); color: #fff;' }}"><span class="card-chip">◈</span><span class="card-wave">⌁</span><p>{{ $selectedCard ? $selectedCard->name : 'Todos os cartões' }}</p><strong>{{ auth()->user()->name }}</strong><div><small>DISPONÍVEL</small><small>{{ $selectedCard ? 'VENCIMENTO' : 'VISÃO GERAL' }}</small></div><div><b>{{ $cardConsolidated['available_limit'] !== null ? 'R$ '.number_format($cardConsolidated['available_limit'], 2, ',', '.') : 'Sem limite' }}</b><b>{{ $selectedCard ? 'Dia '.$selectedCard->due_day : 'Todos' }}</b></div></div>@else<div class="empty-card">Cadastre um cartão para acompanhar seu limite.</div>@endif<a wire:navigate href="{{ route('accounts') }}" class="quick-action">▣ <span>Gerenciar cartões</span>→</a></article>
             <article class="side-panel"><div class="side-heading"><h2>Limite disponível</h2><span>•••</span></div><p class="limit-value">R$ {{ number_format($cardConsolidated['available_limit'], 2, ',', '.') }}</p><p class="limit-subtitle">R$ {{ number_format($cardConsolidated['used_limit'], 2, ',', '.') }} comprometidos</p><div class="progress-track"><i style="width: {{ $cardUtilization }}%"></i></div></article>
-            <article class="side-panel"><div class="side-heading"><h2>Próximos 7 dias</h2><a wire:navigate href="{{ route('transactions') }}">Ver todos</a></div><div class="upcoming-list">@forelse($upcoming as $item)<div><span class="upcoming-dot {{ $item->type }}">{{ strtoupper(substr($item->description, 0, 1)) }}</span><p><b>{{ $item->description }}</b><small>{{ $item->due_date->format('d/m') }} · {{ $item->category?->name ?? 'Sem categoria' }}</small></p><strong class="{{ $item->type === 'income' ? 'amount-income' : 'amount-expense' }}">{{ $item->type === 'income' ? '+' : '-' }}R$ {{ number_format($item->amount, 2, ',', '.') }}</strong></div>@empty<p class="empty-copy">Nenhum lançamento nos próximos 7 dias.</p>@endforelse</div></article>
         </aside>
     </div>
 </div>

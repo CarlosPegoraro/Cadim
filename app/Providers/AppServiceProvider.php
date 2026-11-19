@@ -2,8 +2,6 @@
 
 namespace App\Providers;
 
-use App\Services\FinancialNotificationService;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,14 +17,5 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        View::composer('layouts.app', function ($view): void {
-            $notifications = auth()->check()
-                ? app(FinancialNotificationService::class)->forUser(auth()->user())
-                : ['count' => 0, 'items' => []];
-
-            $view->with('financialNotifications', $notifications);
-        });
-    }
+    public function boot(): void {}
 }

@@ -83,7 +83,7 @@ class TransactionsPage extends Component
 
     public function resetForm()
     {
-        $this->form = ['type' => 'expense', 'amount' => '', 'description' => '', 'merchant' => '', 'category_id' => '', 'financial_account_id' => '', 'credit_card_id' => '', 'due_date' => now()->toDateString(), 'recurrence' => 'one_time', 'installments' => '', 'notes' => ''];
+        $this->form = ['type' => 'expense', 'amount' => '', 'description' => '', 'merchant' => '', 'category_id' => '', 'financial_account_id' => '', 'credit_card_id' => '', 'due_date' => now()->toDateString(), 'recurrence' => 'one_time', 'installments' => '', 'notes' => '', 'status' => 'settled'];
     }
 
     public function openForm()

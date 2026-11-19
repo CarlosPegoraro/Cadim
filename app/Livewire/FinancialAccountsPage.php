@@ -34,7 +34,7 @@ class FinancialAccountsPage extends Component
 
     public string $binLookupMessage = '';
 
-    public array $transfer = ['from_account_id' => '', 'to_account_id' => '', 'amount' => '', 'transfer_date' => '', 'description' => '', 'status' => 'pending'];
+    public array $transfer = ['from_account_id' => '', 'to_account_id' => '', 'amount' => '', 'transfer_date' => '', 'description' => '', 'status' => 'settled'];
 
     public string $successMessage = '';
 
@@ -225,7 +225,7 @@ class FinancialAccountsPage extends Component
             'transfer.status' => 'required|in:pending,settled',
         ])['transfer'];
         $service->create(auth()->user(), $data);
-        $this->transfer = ['from_account_id' => '', 'to_account_id' => '', 'amount' => '', 'transfer_date' => now()->toDateString(), 'description' => '', 'status' => 'pending'];
+        $this->transfer = ['from_account_id' => '', 'to_account_id' => '', 'amount' => '', 'transfer_date' => now()->toDateString(), 'description' => '', 'status' => 'settled'];
         $this->transferModalOpen = false;
         $this->successMessage = 'Transferência registrada com sucesso.';
     }

@@ -40,6 +40,14 @@ class TransactionService
 
             $this->recurrence->materialize($series);
 
+            // Todo lançamento criado pelo usuário já representa uma movimentação realizada.
+            $series->occurrences()->get()->each(function (TransactionOccurrence $occurrence): void {
+                $occurrence->update([
+                    'status' => 'settled',
+                    'settled_at' => $occurrence->due_date,
+                ]);
+            });
+
             return $series;
         });
     }
@@ -113,7 +121,7 @@ class TransactionService
             $series->update($attributes);
 
             $series->occurrences()
-                ->where('status', 'pending')
+                ->where('status', '!=', 'canceled')
                 ->whereDate('due_date', '>=', $occurrence->due_date)
                 ->update($attributes);
         });
@@ -178,7 +186,7 @@ class TransactionService
                 ]);
 
                 $occurrence->series->occurrences()
-                    ->where('status', 'pending')
+                    ->where('status', '!=', 'canceled')
                     ->whereDate('due_date', '>=', $occurrence->due_date)
                     ->update(['status' => 'canceled', 'settled_at' => null]);
             } else {

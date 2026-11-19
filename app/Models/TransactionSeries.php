@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class TransactionSeries extends Model
 {
-    protected $fillable = ['type', 'amount', 'description', 'merchant', 'notes', 'category_id', 'financial_account_id', 'credit_card_id', 'recurrence', 'starts_on', 'purchase_date', 'ends_on', 'installments', 'is_active'];
+    protected $fillable = ['type', 'amount', 'description', 'merchant', 'notes', 'category_id', 'financial_account_id', 'credit_card_id', 'recurrence', 'recurrence_day', 'starts_on', 'purchase_date', 'ends_on', 'installments', 'is_active'];
 
     protected function casts(): array
     {

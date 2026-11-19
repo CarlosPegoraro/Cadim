@@ -80,7 +80,7 @@ class TransactionImportService
                     }
                     $series = app(TransactionService::class)->create($user, $data);
                     $occurrence = $series->occurrences()->firstOrFail();
-                    $this->applyStatus($occurrence, $data['status'] ?? 'pending');
+                    $this->applyStatus($occurrence, $data['status'] ?? 'settled');
                     $created++;
                 } catch (ValidationException $exception) {
                     $errors[] = 'Linha '.($index + 2).': '.collect($exception->errors())->flatten()->first();

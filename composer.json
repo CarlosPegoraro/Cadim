@@ -1,27 +1,25 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "casa-em-dia/financeiro-domestico",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Gerenciador financeiro doméstico minimalista.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
-        "php": "^8.5",
-        "laravel/framework": "^13.8",
+        "php": "^8.4",
+        "laravel/framework": "^12.0",
         "laravel/tinker": "^3.0",
-        "livewire/livewire": "^4.3"
+        "livewire/livewire": "^3.6"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.10",
-        "laravel/pail": "^1.2.5",
-        "laravel/pao": "^1.0.6",
         "laravel/pint": "^1.27",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "pestphp/pest": "^4.7",
-        "pestphp/pest-plugin-laravel": "^4.1",
-        "phpunit/phpunit": "^12.5.12"
+        "pestphp/pest": "^3.8",
+        "pestphp/pest-plugin-laravel": "^3.2",
+        "phpunit/phpunit": "^11.5"
     },
     "autoload": {
         "psr-4": {
@@ -36,26 +34,16 @@
         }
     },
     "scripts": {
-        "setup:docker": [
-            "docker compose -f docker/compose.yaml build",
-            "docker compose -f docker/compose.yaml up -d --wait",
-            "docker compose -f docker/compose.yaml exec -T app php artisan migrate --seed --force"
-        ],
-        "dev": "docker compose -f docker/compose.yaml up -d",
-        "dev:build": "docker compose -f docker/compose.yaml up --build -d",
-        "test": "docker compose -f docker/compose.yaml exec app php artisan test",
-        "test:coverage": "docker compose -f docker/compose.yaml exec app php artisan test --coverage",
-        "test:e2e": "docker compose -f docker/compose.yaml --profile e2e run --rm playwright",
+        "dev": "php artisan serve",
+        "test": "php artisan test",
         "quality": [
             "@test",
             "@pint:check",
             "@analyse"
         ],
-        "analyse": "docker compose -f docker/compose.yaml exec app php vendor/bin/phpstan analyse --memory-limit=1G",
-        "pint": "docker compose -f docker/compose.yaml exec app php vendor/bin/pint",
-        "pint:check": "docker compose -f docker/compose.yaml exec app php vendor/bin/pint --test",
-        "docker": "docker compose -f docker/compose.yaml",
-        "docker:exec": "docker compose -f docker/compose.yaml exec app"
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=1G",
+        "pint": "vendor/bin/pint",
+        "pint:check": "vendor/bin/pint --test"
     },
     "extra": {
         "laravel": {

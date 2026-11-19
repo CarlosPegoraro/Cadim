@@ -78,7 +78,7 @@ services:
   database:
     image: postgres:18-alpine
     ports:
-      - "5433:5432"
+      - "5434:5432"
     environment:
       POSTGRES_DB: comd
       POSTGRES_USER: comd
